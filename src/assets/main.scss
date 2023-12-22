@@ -1,0 +1,56 @@
+@charset 'utf-8';
+@import "./abstracts/index.scss";
+
+/*!===========================================================================
+>>> TABLE OF CONTENTS:
+==============================================================================
+	1.0 Vendors
+	2.0 Base
+	3.0 Layout
+	4.0 Components
+	5.0 Pages
+	6.0 Themes
+============================================================================*/
+
+/**
+* 1.0 Vendors
+*
+* Import each vendors files.
+*/
+@import "modern-normalize/modern-normalize";
+@import "vendors/index";
+
+/**
+* 2.0 Base
+*
+* Define some standard styles and CSS variables (colors, fonts...).
+*/
+@import "base/index";
+
+/**
+* 3.0 Layout
+*
+* Define website layout.
+*/
+@import "layout/index";
+
+/**
+* 4.0 Components
+*
+* Define styles for all kind of specific modules like buttons, widgets...
+*/
+@import "components/index";
+
+/**
+* 5.0 Pages
+*
+* Define all pages specific styles.
+*/
+@import "pages/index";
+
+/**
+* 6.0 Themes
+*
+* Define themes (like dark mode) specific styles.
+*/
+@import "themes/index";
