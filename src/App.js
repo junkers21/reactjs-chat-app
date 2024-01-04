@@ -1,17 +1,20 @@
 import './App.scss';
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './views/Home'; // Importa tus componentes de vista
-import NotFound from './views/NotFound';
-import SignIn from './views/SignIn';
-import SignUp from './views/SignUp';
-import AnonLayout from './components/layouts/AnonLayout'
-import { useDispatch } from 'react-redux';
+
+import { useSelector, useDispatch } from "react-redux";
 import { listenToAuthChanges } from 'src/redux/authSlice';
+import { selectEventSet } from 'src/redux/authSlice';
+
 import AnonRoute from 'src/utils/routes/AnonRoute';
 import PrivateRoute from 'src/utils/routes/PrivateRoute';
-import { useSelector } from "react-redux";
-import { selectEventSet } from 'src/redux/authSlice';
+
+import AnonLayout from './components/layouts/AnonLayout'
+import Home from './views/Home';
+import NotFound from 'src/views/NotFound';
+import SignIn from 'src/views/auth/SignIn';
+import SignUp from 'src/views/auth/SignUp';
+import ForgotPassword from './views/auth/ForgotPassword';
 
 function App() {
   const dispatch = useDispatch();
@@ -35,6 +38,7 @@ function App() {
         <Route exact path="/" element={<AnonRoute/>}>
           <Route exact path="/sign_up" element={<AnonLayout element={<SignUp />} />} />
           <Route exact path="/sign_in" element={<AnonLayout element={<SignIn />} />} />
+          <Route exact path="/forgot_password" element={<AnonLayout element={<ForgotPassword />} />} />
         </Route>
 
 

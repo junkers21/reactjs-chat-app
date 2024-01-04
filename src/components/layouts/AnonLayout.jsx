@@ -9,7 +9,7 @@ function AnonLayout(props) {
 
     return (
         <>
-            <Container id='anon-container' className='d-flex align-items-center'>
+            <Container id='anon-container' className='d-flex align-items-center py-5'>
                 <Row className='w-100 justify-content-center'>
                     <Col xs sm={10} md={8} lg={6}>
                         <Card className='mb-4'>
