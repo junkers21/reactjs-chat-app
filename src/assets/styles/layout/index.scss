@@ -1,10 +1,2 @@
-body {
-    background-position: center;
-    background-image: url('../../images/background_white.svg'),
-    radial-gradient(circle at bottom left, rgba(31,59,72,1), transparent 40%),
-    radial-gradient(circle at top right, rgba(48,43,76,1), transparent 40%);
-}
-
-#anon-container {
-    min-height: 100vh;
-}
+@import './anon';
+@import './app';

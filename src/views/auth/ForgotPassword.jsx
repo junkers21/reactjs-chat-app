@@ -24,7 +24,7 @@ export default function ForgotPassword() {
       try {
         // supabase method to send the magic link to the email provided
         const { error } = await supabase.auth.resetPasswordForEmail(formDataObj.email, {
-          redirectTo: 'http://localhost:3000/'
+          redirectTo: 'http://localhost:3000/config/account'
         });
 
         if (error) throw error;

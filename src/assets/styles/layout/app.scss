@@ -1,0 +1,19 @@
+#side-menu {
+    width: 100px;
+    height: 100vh;
+    background-color: lighten($container, 5%);
+    position: fixed;
+    z-index: 1;
+}
+
+#main-view {
+    padding-left:100px;
+    flex: auto;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+}
+
+#main-view-container {
+    height: 100vh;
+}

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { addToast } from "src/redux/toastSlice";
 import { Button, Form, FloatingLabel, Spinner } from 'react-bootstrap';
 import { supabase } from 'src/supabaseClient';
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom';
 
 
 export default function SignUp() {
