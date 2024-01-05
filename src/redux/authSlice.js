@@ -12,8 +12,9 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         setUser(state, action) {
-          state.user = action.payload;
-          state.loading = false;
+            console.log(action.payload);
+            state.user = action.payload;
+            state.loading = false;
         },
         setEventSet(state, action) {
             state.eventSet = action.payload;

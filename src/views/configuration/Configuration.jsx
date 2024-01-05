@@ -11,10 +11,10 @@ export default function Configuration() {
       <Col xs={3} md={5} lg={3} xxl={2} className='border-end border-container border-1'>
         <div className='d-grid gap-2 mt-3'>
           <NavLink to="/config/profile" className={(navData) => (navData.isActive ? `active ${navLinkClass}` : navLinkClass)}>
-            <FontAwesomeIcon icon={faUser} className='me-md-3' /> <span class="d-none d-md-inline">Profile</span>
+            <FontAwesomeIcon icon={faUser} className='me-md-3' /> <span className="d-none d-md-inline">Profile</span>
           </NavLink>
           <NavLink to="/config/account" className={(navData) => (navData.isActive ? `active ${navLinkClass}` : navLinkClass)}>
-            <FontAwesomeIcon icon={faKey} className='me-md-3' /> <span class="d-none d-md-inline">Account</span>
+            <FontAwesomeIcon icon={faKey} className='me-md-3' /> <span className="d-none d-md-inline">Account</span>
           </NavLink>
         </div>
       </Col>

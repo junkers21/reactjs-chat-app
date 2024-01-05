@@ -14,6 +14,8 @@ export default function Account() {
             <div className='border-bottom border-white my-4'/>
             <UpdatePasswordForm/>
             <div className='border-bottom border-white my-4'/>
+            <SignOut/>
+            <div className='border-bottom border-white my-4'/>
             <DeleteAccount/>
         </Container>
     );
@@ -162,6 +164,48 @@ function UpdatePasswordForm() {
     );
 }
 
+function SignOut() {
+    const [isLoading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleClick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        setLoading(true);
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error.message;
+            navigate("/");
+            dispatch(addToast({ message: "See you later alligator", type: 'success' }))
+        } catch (error) {
+            if ( typeof error === 'string' || error instanceof String ){
+                dispatch(addToast({ message: error, type: 'error' }))
+            } else {
+                dispatch(addToast({ message: "An error occurred, try again later", type: 'error' }))
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return(
+        <Row className='justify-content-between'>
+            <Col xs={12} lg={6} xxl={4}>
+                <h4 className="mb-3 text-warning">Sign Out</h4>
+            </Col>
+            <Col xs={12} lg={6} xxl={4}>
+                <div className="d-grid gap-2">
+                    <Button type="submit" variant="warning" disabled={isLoading} onClick={handleClick}>
+                        {isLoading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Sign Out'}
+                    </Button>
+                </div>
+            </Col>
+        </Row>
+    );
+}
+
 function DeleteAccount() {
     const [isLoading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -177,6 +221,7 @@ function DeleteAccount() {
             if (error) throw error.message;
 
             dispatch(setUser(null));
+            await supabase.auth.signOut();
             navigate("/");
             dispatch(addToast({ message: "Your account has been deleted", type: 'success' }))
         } catch (error) {
@@ -197,7 +242,7 @@ function DeleteAccount() {
             </Col>
             <Col xs={12} lg={6} xxl={4}>
                 <div className="d-grid gap-2">
-                    <Button type="submit" form='update-password' variant="danger" disabled={isLoading} onClick={handleClick}>
+                    <Button type="submit" variant="danger" disabled={isLoading} onClick={handleClick}>
                         {isLoading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Delete Account'}
                     </Button>
                 </div>
