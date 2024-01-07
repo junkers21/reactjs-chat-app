@@ -1,27 +1,46 @@
-import { useState } from 'react';
-import { useDispatch } from "react-redux";
+import { useState, useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import { addToast } from "src/redux/toastSlice";
+import { selectUser, selectProfile, setProfile } from "src/redux/authSlice";
 import { supabase } from 'src/supabaseClient';
-import { useNavigate } from 'react-router-dom'
-import { Container, Row, Col, Form, FloatingLabel, Spinner, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, FloatingLabel, Spinner, Button, Ratio } from "react-bootstrap";
+
+import defaultProfile from 'src/assets/images/default-profile.jpg';
 
 export default function Profile() {
     const [validated, setValidated] = useState(false);
     const [isLoading, setLoading] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState(null)
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const user = useSelector(selectUser);
+    const profile = useSelector(selectProfile);
+    const [file, setFile] = useState(null);
 
-    const validatePassword = () => {
-        const confirmPassword = document.getElementById('confirm_password');
-        const password = document.getElementById('password');
+    const fetchProfile = useCallback(async (id) => {
+        const { data } = await supabase.from('profiles').select().eq('id', id).single();
+        dispatch(setProfile(data))
+    }, [dispatch])
+    
+    useEffect(() => {
+        fetchProfile(user.id)
+    }, [fetchProfile, user])
 
-        if (confirmPassword.value !== password.value) {
-            confirmPassword.setCustomValidity("Must be equal to password");
-        } else {
-            confirmPassword.setCustomValidity("");
+    useEffect(() => {
+        if (profile?.avatar_url) downloadImage(profile.avatar_url)
+    }, [profile])
+    
+    async function downloadImage(path) {
+        try {
+            const { data, error } = await supabase.storage.from('avatars').download(path)
+            if (error) {
+                throw error
+            }
+            const url = URL.createObjectURL(data)
+            setAvatarUrl(url)
+        } catch (error) {
+            console.log('Error downloading image: ', error.message)
         }
     }
-
 
     const handleSubmit = async (event) => {
         const form = event.currentTarget;
@@ -29,24 +48,44 @@ export default function Profile() {
         event.stopPropagation();
         const formData = new FormData(event.target)
         const formDataObj = Object.fromEntries(formData.entries())
-        validatePassword();
+        
         if (form.checkValidity() === true) {
             setLoading(true);
             try {
-                // supabase method to send the magic link to the email provided
-                const { error } = await supabase.auth.signUp({
-                    email: formDataObj.email,
-                    password: formDataObj.password,
-                    options: {
-                        emailRedirectTo: 'http://localhost:3000/'
-                    }
-                });
 
-                if (error) throw error;
-                navigate("/");
-                dispatch(addToast({ message: "Your account has been created, if you haven't received the confirmation email, maybe you should try to reset your password", type: 'success' }))
+                let updateData = {
+                    name: formDataObj.name,
+                    description: formDataObj.description,
+                 }
+
+                if (null !== formDataObj.file) {
+                    const objectFile = formDataObj.avatar
+                    
+                    const fileExt = objectFile.name.split('.').pop()
+                    const fileName = `${Math.random()}.${fileExt}`
+                    const filePath = `${fileName}`
+                    await supabase.storage.from('avatars').upload(filePath, objectFile)
+                    
+                    updateData['avatar_url'] = filePath
+                }
+
+                const { data, error } = await supabase
+                .from('profiles')
+                .update(updateData)
+                .eq('id', user.id)
+                .select()
+                .single()
+
+                if (error) throw error.message;
+                
+                dispatch(setProfile(data))
+                dispatch(addToast({ message: "Your Profile has been updated", type: 'success' }))
             } catch (error) {
-                dispatch(addToast({ message: "An error occurred, try again later", type: 'error' }))
+                if ( typeof error === 'string' || error instanceof String ){
+                    dispatch(addToast({ message: error, type: 'error' }))
+                } else {
+                    dispatch(addToast({ message: "An error occurred, try again later", type: 'error' }))
+                }
             } finally {
                 setLoading(false);
             }
@@ -55,35 +94,51 @@ export default function Profile() {
         setValidated(true);
     }
 
+    function handleChange(e) {
+        console.log(e.target.files)
+        if(e.target.files.length > 0) {
+            setFile(URL.createObjectURL(e.target.files[0]));
+        }
+    }
+
+    let image_url = defaultProfile
+    if(null !== file){
+        image_url = file
+    } else if ( null !== avatarUrl ){
+        image_url = avatarUrl
+    }
+
     return (
-        <Container fluid className="mt-3">
+        <Container fluid className="mt-3" id="profile">
             <Form id="update-profile" noValidate validated={validated} onSubmit={handleSubmit}>
                 <Row>
+                    <Col xs={12} lg={6} xxl={4} className='d-flex justify-content-center'>
+                        <Ratio key={'1x1'} aspectRatio={'1x1'} className='mb-3 profile-image'>
+                            <>
+                                <img alt='profile' src={image_url} className='rounded-circle object-fit-cover' />
+                                <label htmlFor='avatar' className='stretched cursor-pointer'></label>
+                            </>
+                        </Ratio>
+                        <input type="file" onChange={handleChange} className='d-none' name='avatar' id='avatar' accept='image/png, image/jpg, image/jpeg'/>
+                    </Col>
+
                     <Col xs={12} lg={6} xxl={4}>
-                        <FloatingLabel label="Email address" className="mb-3" >
-                            <Form.Control name="email" type="email" placeholder="name@example.com" required />
-                            <Form.Control.Feedback type="invalid">Enter a valid email</Form.Control.Feedback>
+                        <FloatingLabel label="Name" className="mb-3" >
+                            <Form.Control name="name" type="text" placeholder="Name" required minLength={3} defaultValue={profile?.name} />
+                            <Form.Control.Feedback type="invalid">Name is required</Form.Control.Feedback>
                         </FloatingLabel>
                     </Col>
 
                     <Col xs={12} lg={6} xxl={4}>
-                        <FloatingLabel label="Password" className="mb-3">
-                            <Form.Control id="password" name="password" type="password" placeholder="Password" required minLength={6} />
-                            <Form.Control.Feedback type="invalid">Password is required and must have at least 6 characters</Form.Control.Feedback>
-                        </FloatingLabel>
-                    </Col>
-
-                    <Col xs={12} lg={6} xxl={4}>
-                        <FloatingLabel label="Confirm password" className="mb-3">
-                            <Form.Control onKeyUp={validatePassword} id="confirm_password" name="confirm_password" type="password" placeholder="Confirm Password" required minLength={6} />
-                            <Form.Control.Feedback type="invalid">Is required and must be equal to password</Form.Control.Feedback>
+                        <FloatingLabel label="Description" className="mb-3">
+                            <Form.Control id="description" name="description" type="text" placeholder="Description" defaultValue={profile?.description} />
                         </FloatingLabel>
                     </Col>
                 </Row>
                 <Row className='justify-content-end'>
                     <Col xs={12} lg={6} xxl={4}>
                         <div className="d-grid gap-2 mb-4">
-                            <Button type="submit" form='sign-in' variant="primary" disabled={isLoading}>
+                            <Button type="submit" form='update-profile' variant="primary" disabled={isLoading}>
                                 {isLoading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Save'}
                             </Button>
                         </div>

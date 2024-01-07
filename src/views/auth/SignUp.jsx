@@ -38,11 +38,11 @@ export default function SignUp() {
         const { error } = await supabase.auth.signUp({
           email: formDataObj.email,
           password: formDataObj.password,
-          raw_user_meta_data: {
-            description: "Hey there I'm using ChatApp"
-          },
           options: {
-            emailRedirectTo: 'http://localhost:3000/'
+            emailRedirectTo: 'http://localhost:3000/',
+            data: {
+              description: "Hey there I'm using ChatApp"
+            }
           }
         });
 

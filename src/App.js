@@ -2,9 +2,8 @@ import './App.scss';
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { listenToAuthChanges } from 'src/redux/authSlice';
-import { selectEventSet } from 'src/redux/authSlice';
 
 import AnonRoute from 'src/utils/routes/AnonRoute';
 import PrivateRoute from 'src/utils/routes/PrivateRoute';
@@ -22,14 +21,11 @@ import ForgotPassword from './views/auth/ForgotPassword';
 
 function App() {
   const dispatch = useDispatch();
-  const eventSet = useSelector(selectEventSet);
 
   useEffect(() => {
-    if( !eventSet ) {
-      dispatch(listenToAuthChanges());
-    }
+    dispatch(listenToAuthChanges());
     // eslint-disable-next-line
-  }, [dispatch]);
+  }, []);
 
   return (
     <BrowserRouter>
